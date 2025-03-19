@@ -23,6 +23,8 @@ const board_Size = 20;
 const cellSize = calculateCellSize();
 let board;
 let player;
+let ghosts = [];
+let enemyCount = 20;
 
 function sceneSwap()
 {
@@ -35,6 +37,7 @@ function sceneSwap()
 
 function generateRandomBoard()
 {
+    // Makes the board
     const newBoard = Array.from({length:board_Size}, ()=> Array(board_Size).fill(' '));
     for(let y = 0; y < board_Size; y++)
     {
@@ -48,20 +51,31 @@ function generateRandomBoard()
     }
 
     generateObstacles(newBoard);
+
+    // Makes the player
     const [playerX, playerY] = randomEmptyPosition(newBoard);
     setCell(newBoard,playerX,playerY,'P');
     player.x = playerX;
     player.y = playerY;
+
+    // Makes enemies
+    for(let i = 0; i < enemyCount; i++){
+        const[ghostX, ghostY] = randomEmptyPosition(newBoard);
+        setCell(newBoard, ghostX, ghostY, 'G');
+        ghosts.push(new Ghost(ghostX, ghostY));
+    }
+
     console.log(newBoard)
     return newBoard
 }
 
 function drawBoard(board)
 {
+    // Displays the board
     const gameBoard = document.getElementById('game-Board');
 
     gameBoard.style.gridTemplateColumns = `repeat(${board_Size},1fr)`;
-
+    gameBoard.innerHTML = "";
     for(let y = 0; y < board_Size; y++)
     {
         for(let x = 0; x < board_Size; x++)
@@ -77,6 +91,9 @@ function drawBoard(board)
             }else if(getCell(board,x,y) === 'P')
             {
                 cell.classList.add('player');
+            }else if(getCell(board,x,y) === 'G') 
+            {
+                cell.classList.add('ghosts');
             }
             gameBoard.appendChild(cell);
         }
@@ -148,6 +165,11 @@ function setCell(board,x,y,value){
     board[y][x] = value;
 }
 
+function shootAt(x,y){
+    setCell(board,x,y,'b');
+    drawBoard(board);
+}
+
 class Player{
     constructor(x,y){
         this.x = x;
@@ -161,11 +183,21 @@ class Player{
         const newX = currentX + deltaX;
         const newY = currentY + deltaY;
 
-        player.x = newX;
-        player.y = newY;
+        if(getCell(board, newX, newY) === ' ')
+        {
+            player.x = newX;
+            player.y = newY;
 
-        setCell(board, currentX, currentY,' ')
-        setCell(board, newX, newY,'P');
-        drawBoard(board);
+            setCell(board, currentX, currentY,' ');
+            setCell(board, newX, newY,'P');
+            drawBoard(board);
+        }
+    }
+}
+
+class Ghost{
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
     }
 }
