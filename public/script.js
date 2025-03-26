@@ -3,17 +3,30 @@ document.getElementById('game-Screen').style.display = 'none'
 
 document.addEventListener('keydown', (event)=>{
     switch(event.key){
-        case 'ArrowUp':
+        case 'w':
             player.move(0,-1);
         break;
-        case 'ArrowRight':
+        case 'd':
             player.move(1, 0);
         break;
-        case 'ArrowDown':
+        case 's':
             player.move(0,1);
         break;
-        case 'ArrowLeft':
+        case 'a':
             player.move(-1,0);
+        break;
+
+        case 'ArrowUp':
+            shootAt(player.x, player.y - 1);
+        break;
+        case 'ArrowRight':
+            shootAt(player.x + 1, player.y);
+        break;
+        case 'ArrowDown':
+            shootAt(player.x, player.y + 1);
+        break;
+        case 'ArrowLeft':
+            shootAt(player.x - 1, player.y);
         break;
     }
     event.preventDefault();
@@ -94,6 +107,12 @@ function drawBoard(board)
             }else if(getCell(board,x,y) === 'G') 
             {
                 cell.classList.add('ghosts');
+            }else if (getCell(board,x,y) === 'B')
+            {
+                cell.classList.add('bullet');
+                setTimeout(()=>{
+                    setCell(board,x,y,' ');
+                }, 500);
             }
             gameBoard.appendChild(cell);
         }
@@ -166,8 +185,22 @@ function setCell(board,x,y,value){
 }
 
 function shootAt(x,y){
-    setCell(board,x,y,'b');
+    if(getCell(board,x,y) === 'W'){
+        return;
+    }
+
+    const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y);
+
+    if(ghostIndex !== -1){
+        ghosts.splice(ghostIndex,1);
+    }
+
+    setCell(board,x,y,'B');
     drawBoard(board);
+
+    if(ghosts.length === 0){
+        alert('Every ghost vanquished')
+    }
 }
 
 class Player{
@@ -199,5 +232,19 @@ class Ghost{
     constructor(x,y){
         this.x = x;
         this.y = y;
+    }
+
+    moveGhostTowardsPlayer(player,board){
+
+        //Determening player's location in relation to the ghost
+        let dx = player.x - this.x;
+        let dy = player.y - this.y;
+
+        let moves = [];
+
+        if(Math.abs(dx)> Math.abs(dy)){
+            if(dx > 0) moves.push({x: this.x + 1, y: this.y}); // Moving right
+            else moves.push({x: this.x -1, y: this.y}) // Moving left
+        }
     }
 }
