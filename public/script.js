@@ -38,6 +38,7 @@ let board;
 let player;
 let ghosts = [];
 let enemyCount = 20;
+let ghostSpeed = 500;
 
 function sceneSwap()
 {
@@ -46,6 +47,7 @@ function sceneSwap()
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
+    setInterval(moveGhosts, ghostSpeed);
 }
 
 function generateRandomBoard()
@@ -203,6 +205,17 @@ function shootAt(x,y){
     }
 }
 
+function moveGhosts(){
+    ghosts.forEach(ghost =>{
+        const newPosition = ghost.moveGhostTowardsPlayer(player, board);
+        ghost.x = newPosition.x;
+        ghost.y = newPosition.y;
+
+        setCell(board, ghost.x, ghost.y, 'G')
+        drawBoard(board);
+    });
+}
+
 class Player{
     constructor(x,y){
         this.x = x;
@@ -243,8 +256,26 @@ class Ghost{
         let moves = [];
 
         if(Math.abs(dx)> Math.abs(dy)){
-            if(dx > 0) moves.push({x: this.x + 1, y: this.y}); // Moving right
-            else moves.push({x: this.x -1, y: this.y}) // Moving left
+            if(dx > 0) moves.push({x:this.x + 1, y:this.y}) // Moving right
+            else moves.push({x:this.x - 1, y:this.y}) // Moving left
+
+            if(dy > 0) moves.push({x:this.x - 1, y:this.y}) // Moving down
+            else moves.push({x:this.x, y:this.y - 1}) // Moving up
         }
+        else{       
+            if(dy > 0) moves.push({x:this.x + 1, y:this.y}) // Moving down
+            else moves.push({x:this.x, y:this.y - 1}) // Moving up
+
+            if(dx > 0) moves.push({x:this.x + 1, y:this.y}) // Moving right
+            else moves.push({x:this.x - 1, y:this.y}) // Moving left
+        }
+
+        for(let move of moves){
+            const value = getCell(board, move.x, move.y);
+            if(value === ' ' || value === 'P'){
+                return move
+            }
+        }
+        return{x:this.x, y:this.y};
     }
 }
