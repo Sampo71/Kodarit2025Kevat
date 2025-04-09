@@ -2,6 +2,9 @@ document.getElementById('new-game-button').addEventListener("click", sceneSwap);
 document.getElementById('game-Screen').style.display = 'none'
 
 document.addEventListener('keydown', (event)=>{
+    if(isGameRunning === false){
+        return;
+    }
     switch(event.key){
         case 'w':
             player.move(0,-1);
@@ -39,6 +42,8 @@ let player;
 let ghosts = [];
 let enemyCount = 20;
 let ghostSpeed = 500;
+let isGameRunning = false;
+let ghostInterval;
 
 function sceneSwap()
 {
@@ -47,7 +52,8 @@ function sceneSwap()
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
-    setInterval(moveGhosts, ghostSpeed);
+    ghostInterval = setInterval(moveGhosts, ghostSpeed);
+    isGameRunning = true;
 }
 
 function generateRandomBoard()
@@ -206,14 +212,35 @@ function shootAt(x,y){
 }
 
 function moveGhosts(){
+    const oldGhosts = ghosts.map(ghost =>({x:ghost.x, y:ghost.y}));
+
     ghosts.forEach(ghost =>{
-        const newPosition = ghost.moveGhostTowardsPlayer(player, board);
+        const newPosition = ghost.moveGhostTowardsPlayer(player, board, oldGhosts);
         ghost.x = newPosition.x;
         ghost.y = newPosition.y;
 
-        setCell(board, ghost.x, ghost.y, 'G')
-        drawBoard(board);
-    });
+        setCell(board, ghost.x, ghost.y, 'G');
+        
+        oldGhosts.forEach(ghost =>{
+            setCell(board, ghost.x,ghost.y,' ');
+        });
+
+        ghosts.forEach(ghost =>{
+            setCell(board, ghost.x, ghost.y, 'G');
+            if(ghost.x === player.x && ghost.y === player.y){
+                endGame();
+                return;
+            }
+        })
+    })
+    
+    drawBoard(board);
+};
+
+function endGame(){
+    alert('Game Over! The ghosts caught you!')
+    isGameRunning = false;
+    clearInterval(ghostinterval);
 }
 
 class Player{
@@ -247,7 +274,7 @@ class Ghost{
         this.y = y;
     }
 
-    moveGhostTowardsPlayer(player,board){
+    moveGhostTowardsPlayer(player,board,oldGhosts){
 
         //Determening player's location in relation to the ghost
         let dx = player.x - this.x;
@@ -272,8 +299,9 @@ class Ghost{
 
         for(let move of moves){
             const value = getCell(board, move.x, move.y);
-            if(value === ' ' || value === 'P'){
-                return move
+            if(value === ' ' || value === 'P' && 
+                !oldGhosts.some(g => g.x === move.x && g.y === move.y)){
+                return move;
             }
         }
         return{x:this.x, y:this.y};
