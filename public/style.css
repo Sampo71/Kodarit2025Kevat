@@ -100,3 +100,14 @@ button{
         opacity: 0;
     }
 }
+
+#score-Board{
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    margin: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}

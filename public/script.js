@@ -40,10 +40,12 @@ const cellSize = calculateCellSize();
 let board;
 let player;
 let ghosts = [];
-let enemyCount = 20;
+let enemyCount = 3;
 let ghostSpeed = 500;
+let ghostTimeOut = 1000;
 let isGameRunning = false;
 let ghostInterval;
+let score = 0;
 
 function sceneSwap()
 {
@@ -52,8 +54,12 @@ function sceneSwap()
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
-    ghostInterval = setInterval(moveGhosts, ghostSpeed);
+    setTimeout(()=>{
+        ghostInterval = setInterval(moveGhosts, ghostSpeed);
+    }, ghostTimeOut)
     isGameRunning = true;
+    score = 0;
+    updateScoreBoard(0);
 }
 
 function generateRandomBoard()
@@ -80,6 +86,7 @@ function generateRandomBoard()
     player.y = playerY;
 
     // Makes enemies
+    ghosts = [];
     for(let i = 0; i < enemyCount; i++){
         const[ghostX, ghostY] = randomEmptyPosition(newBoard);
         setCell(newBoard, ghostX, ghostY, 'G');
@@ -201,6 +208,7 @@ function shootAt(x,y){
 
     if(ghostIndex !== -1){
         ghosts.splice(ghostIndex,1);
+        updateScoreBoard(50);
     }
 
     setCell(board,x,y,'B');
@@ -238,9 +246,25 @@ function moveGhosts(){
 };
 
 function endGame(){
-    alert('Game Over! The ghosts caught you!')
+    if(isGameRunning){
+        alert('Game Over! The ghosts caught you!')
+    }
     isGameRunning = false;
-    clearInterval(ghostinterval);
+
+    clearInterval(ghostInterval);
+    document.getElementById('intro-Screen').style.display = 'block';
+    document.getElementById('game-Screen').style.display = 'none';
+}
+
+function updateScoreBoard(Increase){
+    const scoreBoard = document.getElementById('score-Board');
+    score += Increase;
+
+    scoreBoard.textContent = `Score: ${score}`;
+}
+
+function startNextLevel(){
+    
 }
 
 class Player{
@@ -286,11 +310,11 @@ class Ghost{
             if(dx > 0) moves.push({x:this.x + 1, y:this.y}) // Moving right
             else moves.push({x:this.x - 1, y:this.y}) // Moving left
 
-            if(dy > 0) moves.push({x:this.x - 1, y:this.y}) // Moving down
+            if(dy > 0) moves.push({x:this.x, y:this.y + 1}) // Moving down
             else moves.push({x:this.x, y:this.y - 1}) // Moving up
         }
         else{       
-            if(dy > 0) moves.push({x:this.x + 1, y:this.y}) // Moving down
+            if(dy > 0) moves.push({x:this.x, y:this.y + 1}) // Moving down
             else moves.push({x:this.x, y:this.y - 1}) // Moving up
 
             if(dx > 0) moves.push({x:this.x + 1, y:this.y}) // Moving right
