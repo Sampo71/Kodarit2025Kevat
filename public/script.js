@@ -40,8 +40,10 @@ const cellSize = calculateCellSize();
 let board;
 let player;
 let ghosts = [];
-let enemyCount = 3;
-let ghostSpeed = 500;
+let enemyCount;
+let originalEnemyCount = 3;
+let ghostSpeed;
+let ghostSpeedOriginal = 500;
 let ghostTimeOut = 1000;
 let isGameRunning = false;
 let ghostInterval;
@@ -51,6 +53,8 @@ function sceneSwap()
 {
     document.getElementById('intro-Screen').style.display = 'none'
     document.getElementById('game-Screen').style.display = 'block'
+    ghostSpeed = ghostSpeedOriginal;
+    enemyCount = originalEnemyCount;
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
@@ -215,7 +219,7 @@ function shootAt(x,y){
     drawBoard(board);
 
     if(ghosts.length === 0){
-        alert('Every ghost vanquished')
+        startNextLevel();
     }
 }
 
@@ -264,6 +268,22 @@ function updateScoreBoard(Increase){
 }
 
 function startNextLevel(){
+    alert('Next Level');
+    
+    //adding difficulty
+    ghostSpeed = ghostSpeed * 0.9
+    enemyCount += 2; 
+
+    //temporarily halting the ghosts
+    clearInterval(ghostInterval);
+    setTimeout(()=>{
+        ghostInterval = setInterval(moveGhosts, ghostSpeed);
+    }, ghostTimeOut)
+
+
+    //makes new board
+    board = generateRandomBoard();
+    drawBoard(board);
     
 }
 
