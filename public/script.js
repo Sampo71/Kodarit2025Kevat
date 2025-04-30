@@ -53,6 +53,7 @@ function sceneSwap()
 {
     document.getElementById('intro-Screen').style.display = 'none'
     document.getElementById('game-Screen').style.display = 'block'
+    document.getElementById('score-Board').style.display = 'block';
     ghostSpeed = ghostSpeedOriginal;
     enemyCount = originalEnemyCount;
     player = new Player(0,0);
@@ -257,7 +258,8 @@ function endGame(){
 
     clearInterval(ghostInterval);
     document.getElementById('intro-Screen').style.display = 'block';
-    document.getElementById('game-Screen').style.display = 'none';
+    document.getElementById('game-Screen').style.display = 'none';  
+    document.getElementById('score-Board').style.display = 'none';
 }
 
 function updateScoreBoard(Increase){
