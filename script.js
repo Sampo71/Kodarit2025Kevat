@@ -1,4 +1,18 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyCQfUnLhUtQuyoNmbWDiFFgGuJqUM0bYKQ",
+    authDomain: "kevatghostgame.firebaseapp.com",
+    projectId: "kevatghostgame",
+    storageBucket: "kevatghostgame.firebasestorage.app",
+    messagingSenderId: "649448932565",
+    appId: "1:649448932565:web:3fbe687aae84747ec18e5c"
+  };
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 document.getElementById('new-game-button').addEventListener("click", sceneSwap);
+document.getElementById('save-scores-btn').addEventListener("click", saveScore);
+document.getElementById('exit-btn').addEventListener("click", exitGame);
 document.getElementById('game-Screen').style.display = 'none'
 
 document.addEventListener('keydown', (event)=>{
@@ -257,8 +271,9 @@ function endGame(){
     isGameRunning = false;
 
     clearInterval(ghostInterval);
-    document.getElementById('intro-Screen').style.display = 'block';
+    //document.getElementById('intro-Screen').style.display = 'block';
     document.getElementById('game-Screen').style.display = 'none';  
+    document.getElementById('game-over-screen').style.display = 'block';
     document.getElementById('score-Board').style.display = 'none';
 }
 
@@ -287,6 +302,26 @@ function startNextLevel(){
     board = generateRandomBoard();
     drawBoard(board);
     
+}
+
+function saveScore(){
+    const playerName = document.getElementById('player-name').value;
+    if(playerName.trim() === ''){
+        alert("Input Name!")
+        return;
+    }
+    db.collection("scores").add({
+        name: playerName,
+        score: score,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    exitGame();
+}
+
+function exitGame(){
+    document.getElementById('intro-Screen').style.display = 'block';
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('game-over-screen').style.display = 'none';
 }
 
 class Player{
